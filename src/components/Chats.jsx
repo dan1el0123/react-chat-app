@@ -1,36 +1,40 @@
+import { doc, onSnapshot } from "firebase/firestore";
+import { useContext, useEffect, useState } from "react";
+import { AuthContext } from "../context/AuthContext";
+import { db } from "../firebase";
+
 const Chats = () => {
+    const [chats, setChats] = useState([]);
+    const { currentUser } = useContext(AuthContext);
+
+    useEffect(() => {
+        const getChats = () => {
+            const unsub = onSnapshot(
+                doc(db, "userChats", currentUser.uid),
+                (doc) => {
+                    setChats(doc.data());
+                }
+            );
+
+            return () => {
+                unsub();
+            };
+        };
+
+        currentUser.uid && getChats();
+    }, [currentUser.uid]);
+
     return (
         <div className="chats">
-            <div className="userChat">
-                <img
-                    src="https://thumbs.dreamstime.com/b/male-avatar-icon-flat-style-male-user-icon-cartoon-man-avatar-hipster-vector-stock-91462914.jpg"
-                    alt="User avatar"
-                />
-                <div className="userChatInfo">
-                    <span>Johny</span>
-                    <p>Hello there</p>
+            {Object.entries(chats)?.map((chat) => (
+                <div className="userChat" key={chat[0]}>
+                    <img src={chat[1].userInfo.photoURL} alt="User avatar" />
+                    <div className="userChatInfo">
+                        <span>{chat[1].userInfo.displayName}</span>
+                        <p>{chat[1].lastMessage?.text}</p>
+                    </div>
                 </div>
-            </div>
-            <div className="userChat">
-                <img
-                    src="https://thumbs.dreamstime.com/b/male-avatar-icon-flat-style-male-user-icon-cartoon-man-avatar-hipster-vector-stock-91462914.jpg"
-                    alt="User avatar"
-                />
-                <div className="userChatInfo">
-                    <span>Jane</span>
-                    <p>Hello</p>
-                </div>
-            </div>
-            <div className="userChat">
-                <img
-                    src="https://thumbs.dreamstime.com/b/male-avatar-icon-flat-style-male-user-icon-cartoon-man-avatar-hipster-vector-stock-91462914.jpg"
-                    alt="User avatar"
-                />
-                <div className="userChatInfo">
-                    <span>Bob</span>
-                    <p>Where is Alice</p>
-                </div>
-            </div>
+            ))}
         </div>
     );
 };
