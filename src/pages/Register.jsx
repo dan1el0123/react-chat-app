@@ -5,7 +5,7 @@ import { useState } from "react";
 import { auth, storage, db } from "../firebase";
 
 import Add from "../img/addAvatar.png";
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 
 const Register = () => {
     const [err, setErr] = useState(false);
@@ -75,7 +75,9 @@ const Register = () => {
                     <button>Sign Up</button>
                     {err && <span>Something went wrong</span>}
                 </form>
-                <p>Do you have an account? Login</p>
+                <p>
+                    Do you have an account? <Link to="/login">Login</Link>
+                </p>
             </div>
         </div>
     );
