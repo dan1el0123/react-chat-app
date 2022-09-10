@@ -72,7 +72,7 @@ const Input = () => {
         setImg(null);
     };
 
-    return (
+    return data.user?.uid ? (
         <div className="input">
             <input
                 type="text"
@@ -94,6 +94,10 @@ const Input = () => {
                 </label>
                 <button onClick={handleSend}>Send</button>
             </div>
+        </div>
+    ) : (
+        <div className="input">
+            <p>Start a new conversation...</p>
         </div>
     );
 };
