@@ -12,6 +12,7 @@ import {
 } from "firebase/firestore";
 import { db } from "../firebase";
 import { AuthContext } from "../context/AuthContext";
+import { ChatContext } from "../context/ChatContext";
 
 const Search = () => {
     const [username, setUsername] = useState("");
@@ -19,6 +20,7 @@ const Search = () => {
     const [err, setErr] = useState(false);
 
     const { currentUser } = useContext(AuthContext);
+    const { dispatch } = useContext(ChatContext);
 
     const handleSearch = async () => {
         const q = query(
@@ -74,6 +76,14 @@ const Search = () => {
                         photoURL: currentUser.photoURL,
                     },
                     [combinedId + ".date"]: serverTimestamp(),
+                });
+                dispatch({
+                    type: "CHANGE_USER",
+                    payload: {
+                        displayName: user.displayName,
+                        photoURL: user.photoURL,
+                        uid: user.uid,
+                    },
                 });
             }
         } catch (err) {}
