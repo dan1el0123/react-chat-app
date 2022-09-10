@@ -9,9 +9,11 @@ import { Link, useNavigate } from "react-router-dom";
 
 const Register = () => {
     const [err, setErr] = useState(false);
+    const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
     const handleSubmit = async (e) => {
+        setLoading(true);
         e.preventDefault();
         const displayName = e.target[0].value;
         const email = e.target[1].value;
@@ -31,25 +33,35 @@ const Register = () => {
 
             await uploadBytesResumable(storageRef, file).then(() => {
                 getDownloadURL(storageRef).then(async (downloadURL) => {
-                    // update user profile
-                    await updateProfile(response.user, {
-                        displayName: displayName,
-                        photoURL: downloadURL,
-                    });
-                    // create user in firestore
-                    await setDoc(doc(db, "users", response.user.uid), {
-                        uid: response.user.uid,
-                        displayName,
-                        email,
-                        photoURL: downloadURL,
-                    });
-                    // create empty user chats in firestore
-                    await setDoc(doc(db, "userChats", response.user.uid), {});
-                    navigate("/");
+                    try {
+                        // update user profile
+                        await updateProfile(response.user, {
+                            displayName: displayName,
+                            photoURL: downloadURL,
+                        });
+                        // create user in firestore
+                        await setDoc(doc(db, "users", response.user.uid), {
+                            uid: response.user.uid,
+                            displayName,
+                            email,
+                            photoURL: downloadURL,
+                        });
+                        // create empty user chats in firestore
+                        await setDoc(
+                            doc(db, "userChats", response.user.uid),
+                            {}
+                        );
+                        navigate("/");
+                    } catch (err) {
+                        console.log(err);
+                        setErr(true);
+                        setLoading(false);
+                    }
                 });
             });
         } catch (err) {
             setErr(true);
+            setLoading(false);
         }
     };
 
@@ -73,6 +85,8 @@ const Register = () => {
                         <span>Add an avatar</span>
                     </label>
                     <button>Sign Up</button>
+                    {loading &&
+                        "Uploading the image and registering new user..."}
                     {err && <span>Something went wrong</span>}
                 </form>
                 <p>
