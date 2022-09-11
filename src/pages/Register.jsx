@@ -8,7 +8,7 @@ import Add from "../img/addAvatar.png";
 import { Link, useNavigate } from "react-router-dom";
 
 const Register = () => {
-    const [err, setErr] = useState(false);
+    const [err, setErr] = useState("");
     const [loading, setLoading] = useState(false);
     const navigate = useNavigate();
 
@@ -20,7 +20,14 @@ const Register = () => {
         const password = e.target[2].value;
         const file = e.target[3].files[0];
 
+        if (!file) {
+            setErr("Please choose an avatar");
+            setLoading(false);
+            return;
+        }
+
         try {
+            setErr("");
             // Create a new user
             const response = await createUserWithEmailAndPassword(
                 auth,
@@ -54,13 +61,13 @@ const Register = () => {
                         navigate("/");
                     } catch (err) {
                         console.log(err);
-                        setErr(true);
+                        setErr(err.message);
                         setLoading(false);
                     }
                 });
             });
         } catch (err) {
-            setErr(true);
+            setErr(err.message);
             setLoading(false);
         }
     };
@@ -74,12 +81,7 @@ const Register = () => {
                     <input required type="text" placeholder="display name" />
                     <input required type="email" placeholder="email" />
                     <input required type="password" placeholder="password" />
-                    <input
-                        required
-                        type="file"
-                        id="file"
-                        style={{ display: "none" }}
-                    />
+                    <input type="file" id="file" style={{ display: "none" }} />
                     <label htmlFor="file">
                         <img src={Add} alt="Add avatar" />
                         <span>Add an avatar</span>
@@ -87,7 +89,7 @@ const Register = () => {
                     <button>Sign Up</button>
                     {loading &&
                         "Uploading the image and registering new user..."}
-                    {err && <span>Something went wrong</span>}
+                    {err && <div>{err}</div>}
                 </form>
                 <p>
                     Do you have an account? <Link to="/login">Login</Link>
